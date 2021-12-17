@@ -140,6 +140,11 @@ socket.on("SetColour", (id, colour) => {
 socket.on("SetName", (id, name) => {
     players[id].name = name;
 })
+socket.on("SetPaint", (id, colour) => {
+    if (room == "main") {
+        players[id].paint = colour;
+    }
+})
 socket.on("MouseDown", (id, position, wobble) => {
     if (players[id].MouseDown)
         players[id].MouseDown(position, wobble);
@@ -969,25 +974,25 @@ function DoCommand(input) {
     let texts = input.split(" "); //Parameters
     if (texts[0] == "goto") { //means you want to go to a different room
         let inputRoom = texts[1];
+        if (inputRoom != room)
+            for (let i = 0; i < validRooms.length; i++) {
+                if (validRooms[i] == inputRoom) {
+                    socket.emit("ChangeRoom", inputRoom);
+                    room = inputRoom;
+                    for (player in players) {
+                        if (player != 0)
+                            delete players[player];
+                    }
+                    SetupRoom();
+                    let p = GeneratePlayer();
+                    p.name = players[0].name;
+                    p.colour = players[0].colour;
+                    p.isMain = true;
 
-        for (let i = 0; i < validRooms.length; i++) {
-            if (validRooms[i] == inputRoom) {
-                socket.emit("ChangeRoom", inputRoom);
-                room = inputRoom;
-                for (player in players) {
-                    if (player != 0)
-                        delete players[player];
+                    players[0] = p;
+                    break;
                 }
-                SetupRoom();
-                let p = GeneratePlayer();
-                p.name = players[0].name;
-                p.colour = players[0].colour;
-                p.isMain = true;
-
-                players[0] = p;
-                break;
             }
-        }
     } else if (texts[0] == "setname") {
         texts.splice(0, 1);
         let inputName = texts.join(" ");
@@ -998,6 +1003,11 @@ function DoCommand(input) {
         let inputColour = texts.join(" ");
         players[0].colour = inputColour;
         socket.emit("SetColour", (inputColour));
+    } else if (texts[0] == "setpaint" && room == "main") { //long awaited feature for changing paint colour
+        texts.splice(0, 1);
+        let inputWhatever = texts.join(" ");
+        players[0].paint = inputWhatever;
+        socket.emit("SetPaint", inputWhatever);
     }
 }
 

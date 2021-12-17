@@ -113,6 +113,11 @@ io.on("connection", function (socket) {
     clients[id].colour = colour;
     socket.to(clients[id].room).emit("SetColour", id, colour);
   })
+  socket.on("SetPaint", (colour) => {
+    console.log(clients[id].name + " set their paint to " + colour);
+    clients[id].paint = colour;
+    socket.to(clients[id].room).emit("SetPaint", id, colour);
+  })
   socket.on("KeyChange", (mov, pos) => {
     clients[id].mov = copyObject(mov);
     clients[id].x = pos.x;
