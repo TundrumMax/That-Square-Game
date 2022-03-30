@@ -310,11 +310,12 @@ class Player {
             x: 0,
             y: 0
         }
+        this.movementMultiplier = 1;
     }
     Update() {
 
-        this.x += this.mov.x;
-        this.y += this.mov.y;
+        this.x += this.mov.x * this.movementMultiplier;
+        this.y += this.mov.y * this.movementMultiplier;
 
     }
     Draw() {
@@ -456,6 +457,18 @@ class GunPlayer extends Player {
         this.velocity.y *= 0.9;
         if (Math.abs(this.velocity.x) < 0.2) this.velocity.x = 0;
         if (Math.abs(this.velocity.y) < 0.2) this.velocity.y = 0;
+        if (this.gun == 2) {
+            this.movementMultiplier = 0.75;
+        } else {
+            this.movementMultiplier = 1;
+        }
+        if (this.focus) {
+            if (this.gun == 1) {
+                this.movementMultiplier *= 0.5;
+            } else {
+                this.movementMultiplier *= 0.75;
+            }
+        }
         if (this.visualAction == 0 || this.visualAction == 2)
             super.Update();
 
@@ -522,7 +535,7 @@ class GunPlayer extends Player {
                         let distance = Math.sqrt((lnx - this.bullets[i].x) ** 2 + (lny - this.bullets[i].y) ** 2);
                         let normalAngle = Math.atan2((this.bullets[i].x - lnx), (this.bullets[i].y - lny));
                         if (distance < 5 + player.wall.thickness / 2) {
-                            player.wall.health -= this.bullets[i].damage / 2;
+                            player.wall.health -= this.bullets[i].damage / 2 / 3;
                             if (this.bullets[i].type == 2 && player.wallIsDeployed) {
                                 this.bullets.splice(i, 1);
                                 i--;
@@ -597,7 +610,7 @@ class GunPlayer extends Player {
                         let distance = Math.sqrt((lnx - this.bullets[i].x) ** 2 + (lny - this.bullets[i].y) ** 2);
                         let normalAngle = Math.atan2((this.bullets[i].x - lnx), (this.bullets[i].y - lny));
                         if (distance < 5 + roomElements[j].data.thickness / 2) {
-                            roomElements[j].data.health -= this.bullets[i].damage / 2;
+                            roomElements[j].data.health -= this.bullets[i].damage / 2 / 3;
                             if (this.bullets[i].type == 2 && roomElements[j].data.wallIsAlive) {
                                 this.bullets.splice(i, 1);
                                 i--;
@@ -886,7 +899,7 @@ class GunPlayer extends Player {
         let diff = Math.round(delta);
         this.gun += diff;
         this.gun %= 3;
-        while (this.gun < 0) this.gun += 3;
+        while (this.gun < 0) this.gun += 3; //why doesnt modulo go backwards ;-;
     }
     ShootGun(wobb) {
 
@@ -913,7 +926,7 @@ class GunPlayer extends Player {
             //recoil
             let recoil = 0.5;
             if (this.gun == 1) recoil = 2;
-            if (this.gun == 2) recoil = 4;
+            if (this.gun == 2) recoil = 8;
             this.velocity.x -= Math.sin(this.angle) * recoil;
             this.velocity.y -= Math.cos(this.angle) * recoil;
 
@@ -942,9 +955,9 @@ class GunPlayer extends Player {
         if (this.isMain) {
             if (this.mouseIsDown || this.cooldown > 0)
                 this.cooldown++;
-            if (this.gun == 0) this.cooldown %= 10;
-            if (this.gun == 1) this.cooldown %= 20;
-            if (this.gun == 2) this.cooldown %= 50;
+            if (this.gun == 0) this.cooldown %= 10 * 3;
+            if (this.gun == 1) this.cooldown %= 20 * 3;
+            if (this.gun == 2) this.cooldown %= 50 * 1.5;
         }
     }
     DeployWall() {
