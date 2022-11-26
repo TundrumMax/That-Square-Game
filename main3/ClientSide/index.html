@@ -2,21 +2,29 @@
 
 <head>
     <title>
-        SquareParty
+        That Square Game
     </title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="./fav.ico">
+
 </head>
 
 <body>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="Network.js"></script>
-    <script src="Input.js"></script>
-    <script src="Player.js"></script>
-    <script src="RoomManager.js"></script>
-    <script src="Script.js"></script>
+    <script src="./Network.js"></script>
+    <script src="./Input.js"></script>
+    <script src="./Player.js"></script>
+
+    <script src="./Room/DefaultRoom.js"></script>
+    <script src="./Room/DrawRoom.js"></script>
+    <script src="./Room/GunRoom.js"></script>
+
+    <script src="./RoomManager.js"></script>
+
+    <script src="./Script.js"></script>
     <input id="textInput" class="hide" placeholder="Type your message..."></input>
     <div id="chatBox" class="hideButLonger"></div>
-    <script src="Chat.js"></script>
+    <script src="./Chat.js"></script>
 </body>
 
 </html>

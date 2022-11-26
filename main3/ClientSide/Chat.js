@@ -9,11 +9,12 @@ function ToggleChat(socket, roomContainer) {
         let len = chatInput.value.length;
         if (len > 0) {
             if (chatInput.value[0] != "/") {
-                socket.emit("message", chatInput.value); //send the message through
-                AddMessage(0, chatInput.value);
+                if (!enableDevMode)
+                    socket.emit("message", chatInput.value); //send the message through
+                AddMessage(0, chatInput.value, roomContainer.room);
                 chatBox.classList.value = "hideButLonger";
             } else {
-                PerformCommand(chatInput.value.substr(1), roomContainer);
+                PerformCommand(chatInput.value.substr(1), roomContainer, socket);
                 chatBox.classList.value = "hide";
             }
         } else {
@@ -34,14 +35,21 @@ function ToggleChat(socket, roomContainer) {
 let maxMessages = 20;
 let yayNae = 0;
 
-function AddMessage(playerID, message) {
+function AddMessage(playerID, message, room) {
     let currentScroll = chatBox.scrollTop;
     let max = chatBox.scrollHeight - chatBox.clientHeight;
 
     let el = document.createElement("div");
     el.id = "chatMessage";
-    el.innerText = playerID + ": " + message;
+
+    el.innerText = room.players[playerID].name + ": " + message;
+
+
     chatBox.appendChild(el);
+    room.players[playerID].messages.push({
+        message: message,
+        age: 0
+    });
     if (currentScroll == max) { //if the scroll before adding a new message was already at max, then set it to max after adding the new message
         chatBox.scrollTop = chatBox.scrollHeight - chatBox.clientHeight;
     }
@@ -74,13 +82,40 @@ window.onclick = e => { //oh boyyyy. Check if the user clicked outside the chatB
 
 
 
-function PerformCommand(input, roomContainer) {
+function PerformCommand(input, roomContainer, socket) {
     let separated = input.split(" ");
-    switch (separated[0]) {
+    let type = roomContainer.room.playerType;
+    switch (separated[0].toLowerCase()) {
         case "goto":
-            let e = ChangeRoom(roomContainer, separated[1]);
+            destRoomName = separated[1];
+            destRoomType = separated[2];
+            let e;
+            if (!enableDevMode)
+                e = RequestRoomChange(socket, separated[1]);
+            else
+                ChangeRoom(roomContainer, socket, {
+                    exists: false
+                });
             if (e) {
                 console.error(e);
             }
+            break;
+        case "setpaint":
+            if (type == "draw") { //prevents shenanigans
+                roomContainer.room.players[0].drawColour = separated[1];
+                if (!enableDevMode)
+                    socket.emit("CSetPaint", separated[1]);
+            }
+            break;
+        case "setname":
+            roomContainer.room.players[0].name = separated[1];
+            if (!enableDevMode)
+                socket.emit("CSetName", separated[1]);
+            break;
+        case "setcolour":
+            roomContainer.room.players[0].colour = separated[1];
+            if (!enableDevMode)
+                socket.emit("CSetColour", separated[1]);
+            break;
     }
 }
