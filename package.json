@@ -2,7 +2,7 @@
   "name": "multiplayer",
   "version": "0.0.1",
   "description": "multiplayer",
-  "main": "SERVER.js",
+  "main": "main3/ServerSide/Server.js",
   "scripts": {
     "start": "node main3/ServerSide/Server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
